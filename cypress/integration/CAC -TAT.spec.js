@@ -6,7 +6,7 @@ describe('verificar o título da aplicação', function() {
 	const THREE_SECONDS_IN_MS = 3000
 	beforeEach(function() {
 		cy.visit('src/index.html')
-		 
+
 	})
 
 	it('Deve visitar uma página e verificar o título', function() {
@@ -14,9 +14,9 @@ describe('verificar o título da aplicação', function() {
 	})
 	it('preenche os campos obrigatórios e envia o formulário', function() {
 		const longText = 'Maria, const const const constv constv const const constvv const';
-		
+
 		cy.clock()
-				
+
 		cy.get('#firstName').type('Luana');
 		cy.get('#lastName').type('Gomez');
 		cy.get('#email').type('jobupa@getnada.com');
@@ -24,7 +24,7 @@ describe('verificar o título da aplicação', function() {
 		cy.get('#open-text-area').type(longText, { delay: 0 });
 		cy.contains('button', 'Enviar').click();
 		cy.get('.success').should('be.visible');
-		
+
 		cy.tick(THREE_SECONDS_IN_MS)
 		cy.get('.success').should('not.be.visible');
 	})
@@ -37,10 +37,10 @@ describe('verificar o título da aplicação', function() {
 		cy.get('#open-text-area').type('Teste');
 		cy.contains('button', 'Enviar').click();
 		cy.get('.error').should('be.visible');
-		
+
 		cy.tick(THREE_SECONDS_IN_MS)
 		cy.get('.error').should('not.be.visible');
-		
+
 	})
 	it('Campo telefone continua vazio quando preenchido com valor não numérico', function() {
 		cy.get('#phone')
@@ -56,10 +56,10 @@ describe('verificar o título da aplicação', function() {
 		cy.get('#open-text-area').type('Teste');
 		cy.contains('button', 'Enviar').click();
 		cy.get('.error').should('be.visible');
-		
+
 		cy.tick(THREE_SECONDS_IN_MS)
 		cy.get('.error').should('not.be.visible');
-		
+
 	})
 	it('Preenche e limpa os campos nome, sobrenome, email e telefone', function() {
 		cy.get('#firstName')
@@ -90,17 +90,17 @@ describe('verificar o título da aplicação', function() {
 		cy.clock()
 		cy.get('button[type="submit"]').click();
 		cy.get('.error').should('be.visible');
-		
+
 		cy.tick(THREE_SECONDS_IN_MS)
 		cy.get('.error').should('not.be.visible');
 	})
 
 	it('Envia um formulário com sucesso usando um comando custumizado', function() {
 		cy.fillMandatoryFieldAndsubmit()
-		
+
 		cy.clock()
 		cy.get('.success').should('be.visible');
-		
+
 		cy.tick(THREE_SECONDS_IN_MS)
 		cy.get('.success').should('not.be.visible');
 	})
@@ -174,14 +174,58 @@ describe('verificar o título da aplicação', function() {
 				expect($fileUpload[0].files[0].name).to.equal('example.json');
 			})
 	})
-	it('Verifica que a política de privacidade abre em outra aba sem necessidade de um click', function(){
-		cy.get(' a').should('have.attr','target','_blank')
+	it('Verifica que a política de privacidade abre em outra aba sem necessidade de um click', function() {
+		cy.get(' a').should('have.attr', 'target', '_blank')
 	})
-	it('Acessa a página a política de privacidade removendo o target e então clicando no link', function(){
+	it('Acessa a página a política de privacidade removendo o target e então clicando no link', function() {
 		cy.get(' a')
-		.invoke('removeAttr','target')
-		.click()
+			.invoke('removeAttr', 'target')
+			.click()
 		cy.contains('Talking About Testing').should('be.visible')
 	})
-		
-});
+
+	it('exibe e esconde as mensagens de sucesso e erro usando o .invoke', () => {
+		cy.get('.success')
+			.should('not.be.visible')
+			.invoke('show')
+			.should('be.visible')
+			.and('contain', 'Mensagem enviada com sucesso.')
+			.invoke('hide')
+			.should('not.be.visible')
+		cy.get('.error')
+			.should('not.be.visible')
+			.invoke('show')
+			.should('be.visible')
+			.and('contain', 'Valide os campos obrigatórios!')
+			.invoke('hide')
+			.should('not.be.visible')
+	})
+	it(`preenche a area de texto usando o comando invoke`, function() {
+		const longText = Cypress._.repeat('0123456789', 20)
+
+		cy.get('textarea')
+			.invoke('val', longText)
+			.should('have.value', longText)
+	})
+	it('faz uma requisição HTTP', function() {
+		cy.request('`https://cac-tat.s3.eu-central-1.amazonaws.com/index.html`')
+			.should(function(response) {
+				const { status, statusText, body } = response
+				expect(status).to.equal(200)
+				expect(statusText).to.equal('OK')
+				const expected = '<html>\r\n <head>\r\n <meta http-equiv="content-type" content="text/html;charset=utf-8">\r\n <meta name="viewport" content="width=device-width, initial-scale=1.0">\r\n <title>Cypress</title>\r\n\r\n <link href="/__cypress/runner/favicon.ico" rel="icon">\r\n\r\n <link rel="stylesheet" href="/__cypress/runner/cypress_runner.css">\r\n </head>\r\n <body>\r\n <div id="app">\r\n <div class="runner automation-failure">\r\n <div class="automation-message">\r\n <p>Whoops, we can\'t run your tests.</p>\r\n <div>\r\n <p class="muted">This browser was not launched through Cypress. Tests cannot run.</p>\r\n </div>\r\n </div>\r\n </div>\r\n </div>\r\n </body>\r\n</html>\r\n';
+
+				const expectedWithoutSpacesAndEscape = expected.replace(/\s/g, '');
+
+				expect(body.replace(/\s/g, '')).to.include(expectedWithoutSpacesAndEscape);
+			})
+	})
+	it.only('Encontra o gato escondido', function(){
+		cy.get('#cat')
+		.invoke('show')
+		.should('be.visible')
+		cy.get('#title')
+		.invoke('text','CAT TAT')
+	})
+})
+
