@@ -3,8 +3,10 @@
 
 
 describe('verificar o título da aplicação', function() {
+	const THREE_SECONDS_IN_MS = 3000
 	beforeEach(function() {
 		cy.visit('src/index.html')
+		 
 	})
 
 	it('Deve visitar uma página e verificar o título', function() {
@@ -12,24 +14,33 @@ describe('verificar o título da aplicação', function() {
 	})
 	it('preenche os campos obrigatórios e envia o formulário', function() {
 		const longText = 'Maria, const const const constv constv const const constvv const';
-
+		
+		cy.clock()
+				
 		cy.get('#firstName').type('Luana');
 		cy.get('#lastName').type('Gomez');
 		cy.get('#email').type('jobupa@getnada.com');
 		cy.get('#phone').type('21988018632');
 		cy.get('#open-text-area').type(longText, { delay: 0 });
 		cy.contains('button', 'Enviar').click();
-		cy.get('.success').should('exist');
+		cy.get('.success').should('be.visible');
+		
+		cy.tick(THREE_SECONDS_IN_MS)
+		cy.get('.success').should('not.be.visible');
 	})
 	it('Exibe mensagem de erro ao submeter o formulário com um email com formatação invavlida', function() {
-
+		cy.clock()
 		cy.get('#firstName').type('Luana');
 		cy.get('#lastName').type('Gomez');
 		cy.get('#email').type('jobupa.getnada.com');
 		cy.get('#phone').type('21988018632');
 		cy.get('#open-text-area').type('Teste');
 		cy.contains('button', 'Enviar').click();
-		cy.get('.error').should('exist');
+		cy.get('.error').should('be.visible');
+		
+		cy.tick(THREE_SECONDS_IN_MS)
+		cy.get('.error').should('not.be.visible');
+		
 	})
 	it('Campo telefone continua vazio quando preenchido com valor não numérico', function() {
 		cy.get('#phone')
@@ -37,13 +48,18 @@ describe('verificar o título da aplicação', function() {
 			.should('have.value', '')
 	})
 	it('Campo telefone se torna obrigatório mas não é preenchido antes do envio do formulário', function() {
+		cy.clock()
 		cy.get('#firstName').type('Luana');
 		cy.get('#lastName').type('Gomez');
 		cy.get('#email').type('jobupa@getnada.com');
 		cy.get('#phone-checkbox').check();
 		cy.get('#open-text-area').type('Teste');
 		cy.contains('button', 'Enviar').click();
-		cy.get('.error').should('exist');
+		cy.get('.error').should('be.visible');
+		
+		cy.tick(THREE_SECONDS_IN_MS)
+		cy.get('.error').should('not.be.visible');
+		
 	})
 	it('Preenche e limpa os campos nome, sobrenome, email e telefone', function() {
 		cy.get('#firstName')
@@ -71,13 +87,22 @@ describe('verificar o título da aplicação', function() {
 			.should('have.value', '')
 	})
 	it('Crie mensagem de erro ao submeter o formulário sem preencher os campos obrigatórios', function() {
+		cy.clock()
 		cy.get('button[type="submit"]').click();
-		cy.get('.error').should('exist');
+		cy.get('.error').should('be.visible');
+		
+		cy.tick(THREE_SECONDS_IN_MS)
+		cy.get('.error').should('not.be.visible');
 	})
 
-	it('Envia um formulário usando um comando custumizado', function() {
+	it('Envia um formulário com sucesso usando um comando custumizado', function() {
 		cy.fillMandatoryFieldAndsubmit()
-		cy.get('.success').should('exist');
+		
+		cy.clock()
+		cy.get('.success').should('be.visible');
+		
+		cy.tick(THREE_SECONDS_IN_MS)
+		cy.get('.success').should('not.be.visible');
 	})
 
 	it('Seleciona um produto (YouTube) por seu texto', function() {
